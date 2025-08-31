@@ -1,24 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mensajería App - Proyecto Next.js
 
-## Getting Started
+Este es un proyecto de mensajería construido con [Next.js](https://nextjs.org) y bootstrapped con [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app). Incluye un sistema de mock API usando MSW para simular usuarios, conversaciones y mensajes, ideal para desarrollo frontend sin necesidad de backend real.
 
-First, run the development server:
+---
+
+## 🚀 Cómo levantar el proyecto
+
+### 1. Clona el repositorio
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone git@github.com:BrayanCcLindo/chat-tech.git
+cd mi-app-mensajes
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Instala las dependencias
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Puedes usar el gestor de paquetes que prefieras:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm install
+```
+
+### 3. Inicia el servidor de desarrollo
+
+```bash
+pnpm run dev
+```
+
+### 4. Abre la aplicación en tu navegador
+
+Visita [http://localhost:3000](http://localhost:3000) para ver la app en funcionamiento.
+
+---
+
+## Edición y desarrollo
+
+- Puedes empezar a editar la página principal en `app/page.tsx`. Los cambios se reflejarán automáticamente.
+- El proyecto utiliza [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) para optimizar y cargar fuentes.
+
+---
+
+## Mock API con MSW
+
+Este proyecto incluye handlers de [Mock Service Worker (MSW)](https://mswjs.io/) para simular endpoints RESTful de usuarios, conversaciones y mensajes.  
+Consulta la sección "Mock Handlers para Mensajería (MSW)" más abajo para ver todos los endpoints simulados y cómo funcionan.
+
+---
+
+## Requisitos
+
+- Node.js 18+
+- npm, yarn, pnpm o bun
+
+---
+
+## Sugerencias
+
+- Si tienes problemas con dependencias, ejecuta `npm install` nuevamente.
+- Si usas Windows, asegúrate de tener permisos para instalar dependencias globales si es necesario.
+
+---
 
 # Mock Handlers para Mensajería (MSW)
 
@@ -102,22 +143,3 @@ Este archivo define los **handlers de Mock Service Worker (MSW)** para simular u
 Importa este archivo en tu setup de MSW para interceptar las peticiones HTTP de tu frontend y simular un backend de mensajería completo.
 
 ---
-
-## Ejemplo de Integración
-
-```typescript
-import { setupWorker } from "msw";
-import { handlers } from "./src/lib/msw/handlers";
-
-export const worker = setupWorker(...handlers);
-```
-
----
-
-## Personalización
-
-Puedes modificar los mocks (`mockUsers`, `mockMessages`, `mockConversations`) para adaptarlos a tus necesidades de desarrollo y pruebas.
-
----
-
-\*\*¡Listo para desarrollar y testear tu app de mensajería
