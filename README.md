@@ -20,17 +20,104 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+# Mock Handlers para Mensajería (MSW)
 
-To learn more about Next.js, take a look at the following resources:
+Este archivo define los **handlers de Mock Service Worker (MSW)** para simular una API RESTful de mensajería, incluyendo usuarios, conversaciones y mensajes. Es ideal para desarrollo frontend sin necesidad de un backend real.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Endpoints Simulados
 
-## Deploy on Vercel
+### Usuarios
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **GET `/api/users`**
+  - Devuelve un usuario de ejemplo (mock).
+- **POST `/api/users`**
+  - Crea un usuario con los datos recibidos.
+- **GET `/api/messaging/users`**
+  - Devuelve la lista de usuarios mock.
+- **GET `/api/messaging/users/:id`**
+  - Devuelve un usuario por su ID.
+- **POST `/api/messaging/users`**
+  - Crea un usuario de mensajería con nombre, email y avatar generado.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+### Conversaciones
+
+- **GET `/api/messaging/conversations`**
+  - Devuelve todas las conversaciones mock.
+- **GET `/api/messaging/conversations/:id`**
+  - Devuelve una conversación por ID.
+- **POST `/api/messaging/conversations`**
+  - Crea una nueva conversación.
+- **DELETE `/api/messaging/conversations/:id`**
+  - Elimina una conversación y todos sus mensajes asociados.
+- **PATCH `/api/messaging/conversations/:id`**
+  - Actualiza los datos de una conversación.
+- **POST `/api/messaging/conversations/:id/leave`**
+  - Simula que un usuario abandona la conversación.
+
+---
+
+### Mensajes
+
+- **GET `/api/messaging/conversations/:conversationId/messages`**
+  - Devuelve los mensajes de una conversación, soporta paginación (`limit`, `offset`).
+- **POST `/api/messaging/conversations/:conversationId/messages`**
+  - Crea un nuevo mensaje (soporta texto y archivos adjuntos).
+- **PUT `/api/messaging/messages/:id`**
+  - Edita el contenido de un mensaje.
+- **DELETE `/api/messaging/messages/:id`**
+  - Elimina un mensaje y actualiza el último mensaje de la conversación si corresponde.
+
+---
+
+### Búsqueda
+
+- **GET `/api/messaging/messages/search?q=texto&conversationId=...`**
+  - Busca mensajes por contenido y opcionalmente por conversación.
+
+---
+
+## Notas de Implementación
+
+- **Datos Mock:**  
+  Los datos de usuarios, mensajes y conversaciones se inicializan desde archivos mock y se mantienen en memoria.
+- **IDs:**  
+  Se usan UUIDs y timestamps para simular IDs únicos.
+- **Mensajes:**  
+  Soportan texto, imágenes y archivos. El estado de entrega se simula con un `setTimeout`.
+- **Conversaciones:**  
+  Se actualiza el campo `lastMessage` y `updatedAt` automáticamente.
+- **Borrado:**  
+  Al eliminar una conversación, también se eliminan sus mensajes.
+- **Búsqueda:**  
+  La búsqueda es insensible a mayúsculas/minúsculas y filtra por contenido y/o conversación.
+
+---
+
+## Uso
+
+Importa este archivo en tu setup de MSW para interceptar las peticiones HTTP de tu frontend y simular un backend de mensajería completo.
+
+---
+
+## Ejemplo de Integración
+
+```typescript
+import { setupWorker } from "msw";
+import { handlers } from "./src/lib/msw/handlers";
+
+export const worker = setupWorker(...handlers);
+```
+
+---
+
+## Personalización
+
+Puedes modificar los mocks (`mockUsers`, `mockMessages`, `mockConversations`) para adaptarlos a tus necesidades de desarrollo y pruebas.
+
+---
+
+\*\*¡Listo para desarrollar y testear tu app de mensajería
