@@ -1,11 +1,7 @@
 import type { User, Message, Conversation } from "@/types/messaging";
 
 export const convId1 = crypto.randomUUID();
-export const convId2 = crypto.randomUUID();
-
 export const userId1 = crypto.randomUUID();
-export const userId2 = crypto.randomUUID();
-export const userId3 = crypto.randomUUID();
 
 export const mockUsers: User[] = [
   {

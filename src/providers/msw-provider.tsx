@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useEffect, useState } from "react";
 
 interface MSWProviderProps {
@@ -9,29 +8,34 @@ interface MSWProviderProps {
 }
 
 export function MSWProvider({ children }: MSWProviderProps) {
-  const [isMSWReady, setIsMSWReady] = useState(false);
+  const [mswReady, setMswReady] = useState(false);
 
   useEffect(() => {
     const initMSW = async () => {
       if (typeof window !== "undefined") {
-        const { worker } = await import("../lib/msw/browser");
-
+        // Cliente: usar service worker
+        const { worker } = await import("@/lib/msw/browser");
         await worker.start({
           onUnhandledRequest: "bypass"
         });
-
-        setIsMSWReady(true);
+      } else {
+        // Servidor: usar setupServer
+        const { server } = await import("@/lib/msw/server");
+        server.listen({
+          onUnhandledRequest: "bypass"
+        });
       }
+      setMswReady(true);
     };
 
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled") {
       initMSW();
     } else {
-      setIsMSWReady(true);
+      setMswReady(true);
     }
   }, []);
 
-  if (!isMSWReady) {
+  if (process.env.NEXT_PUBLIC_API_MOCKING === "enabled" && !mswReady) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">

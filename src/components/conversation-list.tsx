@@ -51,6 +51,7 @@ export function ConversationList({
 
     return "/diverse-user-avatars.png";
   };
+
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
