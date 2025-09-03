@@ -5,7 +5,7 @@ export const userId1 = crypto.randomUUID();
 
 export const mockUsers: User[] = [
   {
-    id: userId1,
+    id: convId1,
     name: "Pedro Gonzalez",
     email: "pedro@example.com",
     avatar: "/avatar-pedro.png",

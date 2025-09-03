@@ -189,7 +189,7 @@ export function ChatArea({ conversation }: ChatAreaProps) {
         ) : (
           <div className="space-y-4">
             {sortedMessages.map(message => {
-              const user = users.find(u => u.id === message.senderId);
+              const user = users.find(u => u.id === message.conversationId);
               const isCurrentUser = message.senderId === "1";
 
               return (

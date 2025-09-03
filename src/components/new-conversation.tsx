@@ -13,6 +13,8 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog";
+import { useForm } from "react-hook-form";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,11 +42,20 @@ export function NewConversationDialog({
   const { data: conversations = [] } = useConversations(currentUserId);
 
   const createConversation = useCreateConversation();
-  const [newContactName, setNewContactName] = useState("");
-  const [newContactPhone, setNewContactPhone] = useState("");
   const createUser = useCreateUser();
   const [errorMsg, setErrorMsg] = useState("");
   const [tabValue, setTabValue] = useState("contacts");
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors }
+  } = useForm({
+    defaultValues: {
+      contactName: "",
+      contactPhone: ""
+    }
+  });
 
   const handleUserToggle = (userId: string) => {
     setSelectedUser(prev => (prev === userId ? null : userId));
@@ -65,10 +76,12 @@ export function NewConversationDialog({
     try {
       const conversation = await createConversation.mutateAsync({
         name: users.find(u => u.id === selectedUser)?.name ?? "",
-        type: "direct"
+        type: "direct",
+        id: selectedUser
       });
       onConversationCreated?.(conversation.id);
       handleClose();
+      setErrorMsg("");
     } catch (error) {
       console.error("Failed to create direct conversation:", error);
     }
@@ -79,16 +92,17 @@ export function NewConversationDialog({
     onOpenChange(false);
   };
 
-  const handleCreateContact = async () => {
-    if (!newContactName.trim() || !newContactPhone.trim()) return;
+  const handleCreateContact = async (data: {
+    contactName: string;
+    contactPhone: string;
+  }) => {
+    if (!data.contactName.trim() || !data.contactPhone.trim()) return;
 
     try {
       await createUser.mutateAsync({
-        name: newContactName.trim(),
-        phone: newContactPhone.trim()
+        name: data.contactName.trim(),
+        phone: data.contactPhone.trim()
       });
-      setNewContactName("");
-      setNewContactPhone("");
       setTabValue("contacts");
     } catch (error) {
       console.error("Failed to create contact:", error);
@@ -187,49 +201,88 @@ export function NewConversationDialog({
           </TabsContent>
           <TabsContent value="newContact" className="space-y-4">
             <div className="space-y-4 mt-4">
-              <div>
-                <Label htmlFor="contactName">Nombre del contacto</Label>
-                <Input
-                  id="contactName"
-                  placeholder="Ingresa el nombre completo..."
-                  value={newContactName}
-                  onChange={e => setNewContactName(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="contactPhone">Número de teléfono</Label>
-                <Input
-                  id="contactPhone"
-                  placeholder="Ingresa el número de teléfono..."
-                  value={newContactPhone}
-                  onChange={e => setNewContactPhone(e.target.value)}
-                />
-              </div>
-
-              {createUser.isSuccess && (
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-800">
-                    ¡Contacto creado exitosamente!
-                  </p>
+              <form
+                onSubmit={handleSubmit(handleCreateContact)}
+                className="space-y-4 "
+              >
+                <div>
+                  <Label htmlFor="contactName">Nombre del contacto</Label>
+                  <Input
+                    id="contactName"
+                    placeholder="Ingresa el nombre completo..."
+                    {...register("contactName", {
+                      required: "El nombre es obligatorio"
+                    })}
+                  />
+                  {errors.contactName && (
+                    <p className="text-xs text-red-600 mt-1">
+                      {errors.contactName.message}
+                    </p>
+                  )}
                 </div>
-              )}
 
-              {createUser.isError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-800">
-                    Error al crear el contacto. Inténtalo de nuevo.
-                  </p>
+                <div>
+                  <Label htmlFor="contactPhone">Número de teléfono</Label>
+                  <Input
+                    id="contactPhone"
+                    placeholder="Ingresa el número de teléfono..."
+                    maxLength={9}
+                    {...register("contactPhone", {
+                      required: "El número es obligatorio",
+                      pattern: {
+                        value: /^[0-9]+$/,
+                        message: "Solo se permiten números"
+                      },
+                      minLength: {
+                        value: 9,
+                        message: "Debe tener exactamente 9 dígitos"
+                      },
+                      maxLength: {
+                        value: 9,
+                        message: "Debe tener exactamente 9 dígitos"
+                      }
+                    })}
+                  />
+                  {errors.contactPhone && (
+                    <p className="text-xs text-red-600 mt-1">
+                      {errors.contactPhone.message}
+                    </p>
+                  )}
                 </div>
-              )}
+
+                {createUser.isSuccess && (
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-800">
+                      ¡Contacto creado exitosamente!
+                    </p>
+                  </div>
+                )}
+
+                {createUser.isError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-800">
+                      Error al crear el contacto. Inténtalo de nuevo.
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" type="button" onClick={handleClose}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit" disabled={createUser.isPending}>
+                    {createUser.isPending ? "Creando..." : "Crear contacto"}
+                  </Button>
+                </div>
+              </form>
             </div>
 
-            <div className="flex justify-end gap-2">
+            {/* <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={handleClose}>
                 Cancelar
               </Button>
               <Button
-                onClick={handleCreateContact}
+                
                 disabled={
                   !newContactName.trim() ||
                   !newContactPhone.trim() ||
@@ -238,7 +291,7 @@ export function NewConversationDialog({
               >
                 {createUser.isPending ? "Creando..." : "Crear contacto"}
               </Button>
-            </div>
+            </div> */}
           </TabsContent>
         </Tabs>
       </DialogContent>

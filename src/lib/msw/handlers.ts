@@ -13,11 +13,12 @@ const users = [...mockUsers];
 let messages = [...mockMessages];
 const conversations = [...mockConversations];
 const messageId = crypto.randomUUID();
+const senderId = crypto.randomUUID();
 
 export const handlers = [
   http.get("/api/users", () => {
     return HttpResponse.json([
-      { id: 1, name: "Pedro gonzalez", email: "pedro@example.com" }
+      { id: 1, name: "Pedro Picapiedra", email: "pedro@example.com" }
     ]);
   }),
 
@@ -64,13 +65,19 @@ export const handlers = [
     const data = (await request.json()) as CreateConversationRequest;
 
     const now = new Date().toISOString();
-
     const newConversation = {
-      id: messageId,
+      id: data.id,
       name: data.name,
-      type: data.type,
-      lastMessage: undefined,
-      unreadCount: 0,
+      type: "direct",
+      lastMessage: {
+        id: messageId,
+        conversationId: messageId,
+        senderId: senderId,
+        content: `¡Hola! soy ${data.name}.`,
+        status: "read",
+        timestamp: new Date(Date.now()).toISOString(),
+        type: "text"
+      },
       createdAt: now,
       updatedAt: now
     };
@@ -136,9 +143,9 @@ export const handlers = [
 
   http.post("/api/messaging/users", async ({ request }) => {
     const data = (await request.json()) as CreateUserRequest;
-
+    const newUserId = crypto.randomUUID();
     const newUser = {
-      id: messageId,
+      id: newUserId,
       name: data.name,
       email: `${data.name.toLowerCase().replace(/\s+/g, ".")}@example.com`,
       avatar: `/placeholder.svg?height=40&width=40&query=${encodeURIComponent(
@@ -220,11 +227,10 @@ export const handlers = [
       }
 
       const newMessage = {
-        id: `msg-${Date.now()}`,
+        id: messageId,
         conversationId: params.conversationId as string,
         senderId: data.senderId || "1",
         content: data.content || "",
-        attachments: attachments.length > 0 ? attachments : undefined,
         timestamp: new Date().toISOString(),
         type: messageType,
         status: "sent" as const

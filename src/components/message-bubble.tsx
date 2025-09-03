@@ -13,7 +13,6 @@ import {
 import { MoreHorizontal, Trash2, Edit3, Reply, Check, X } from "lucide-react";
 import { MessageReactions } from "./message-reactions";
 import { DeleteMessageDialog } from "./delete-message-dialog";
-import { FileAttachment } from "./file-attachment";
 import { useEditMessage } from "@/hooks/use-messaging";
 import { cn } from "@/lib/utils";
 import type { Message, User } from "@/types/messaging";
@@ -153,17 +152,6 @@ export function MessageBubble({
                 isCurrentUser ? "items-end" : "items-start"
               )}
             >
-              {message.attachments && message.attachments.length > 0 && (
-                <div className="space-y-2">
-                  {message.attachments.map(attachment => (
-                    <FileAttachment
-                      key={attachment.id}
-                      attachment={attachment}
-                    />
-                  ))}
-                </div>
-              )}
-
               {message.content && message.content.trim() && (
                 <div
                   className={cn(

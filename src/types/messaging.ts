@@ -15,9 +15,8 @@ export interface Message {
   timestamp: string;
   edited?: boolean;
   editedAt?: string;
-  type: "text" | "image" | "file";
-  status: "sent" | "delivered" | "read";
-  attachments?: Attachment[];
+  type?: string | "image" | "file";
+  status: string;
 }
 
 export interface Attachment {
@@ -31,8 +30,8 @@ export interface Attachment {
 
 export interface Conversation {
   id: string;
-  name?: string;
-  type: "direct" | "group";
+  name: string;
+  type: string;
   lastMessage?: Message;
   createdAt: string;
   updatedAt: string;
@@ -41,7 +40,7 @@ export interface Conversation {
 export interface CreateMessageRequest {
   conversationId: string;
   content: string;
-  type?: "text" | "image" | "file";
+  type?: string | "image" | "file";
   senderId?: string;
   files?: File[];
 }
@@ -53,6 +52,7 @@ export interface UpdateMessageRequest {
 export interface CreateConversationRequest {
   name: string;
   type: "direct" | "group";
+  id: string;
 }
 export interface CreateUserRequest {
   name: string;
